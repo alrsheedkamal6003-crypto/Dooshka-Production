@@ -56,7 +56,7 @@
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 40px;
+            margin-bottom: 20px; /* تم تقليل المسافة عشان القائمة الفرعية */
             flex-wrap: wrap;
             padding: 0 20px;
         }
@@ -79,6 +79,40 @@
             box-shadow: 0 0 15px rgba(255, 152, 0, 0.3);
             transform: translateY(-3px);
         }
+
+        /* --- الإضافة الجديدة: تنسيق القائمة الفرعية --- */
+        .sub-filter-container {
+            display: none; /* مخفية في البداية */
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            padding: 0 20px;
+            animation: fadeInDown 0.4s ease forwards;
+        }
+
+        .sub-filter-container.active {
+            display: flex;
+        }
+
+        .sub-filter-btn {
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sub-filter-btn.active, .sub-filter-btn:hover {
+            background: var(--primary-color);
+            color: #000;
+            box-shadow: 0 0 10px rgba(255, 152, 0, 0.4);
+        }
+        /* --- نهاية تنسيق القائمة الفرعية --- */
 
         /* شبكة المعرض المتجاوبة 100% للابتوب والتلفون */
         .gallery-grid {
@@ -304,19 +338,32 @@
 <body>
 
     <section class="section-header">
-        <h2>معرض إبداعات دوشكا</h2>
+        <h2>الكتالوج</h2>
         <p>مجموعة مختارة من الجلسات واللحظات التي لا تُنسى</p>
     </section>
 
+    <!-- أزرار الفلترة الرئيسية -->
     <div class="filter-container">
         <button class="filter-btn active" onclick="filterMedia('all')">الكل</button>
-        <button class="filter-btn" onclick="filterMedia('photo')">جلسات تصوير</button>
+        <!-- التعديل هنا: زر جلسات التصوير بيشغل دالة جديدة تظهر القائمة الفرعية -->
+        <button class="filter-btn" onclick="toggleSubMenu(this, 'photo-sub-menu')">جلسات تصوير</button>
+        <button class="filter-btn" onclick="filterMedia('wedding')">تصوير أعراس</button>
+        <button class="filter-btn" onclick="filterMedia('graduation')">تصوير تخاريج</button>
+        <button class="filter-btn" onclick="filterMedia('corporate')">مؤسسات وشركات</button>
+        <button class="filter-btn" onclick="filterMedia('organizations')">منظمات</button>
+        <button class="filter-btn" onclick="filterMedia('highlight')">هايلايت</button>
         <button class="filter-btn" onclick="filterMedia('video')">أعمال الڤيديو</button>
+    </div>
+
+    <!-- الإضافة الجديدة: القائمة الفرعية لجلسات التصوير -->
+    <div class="sub-filter-container" id="photo-sub-menu">
+        <button class="sub-filter-btn" onclick="filterMedia('birthday', true)">أعياد ميلاد</button>
+        <button class="sub-filter-btn" onclick="filterMedia('zaffa', true)">زفة</button>
     </div>
 
     <main class="gallery-grid">
         
-        <div class="gallery-item" data-category="photo">
+        <div class="gallery-item" data-category="wedding">
             <div class="media-box">
                 <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=500" alt="جلسة زفاف">
             </div>
@@ -326,7 +373,7 @@
             </div>
         </div>
 
-        <div class="gallery-item" data-category="video">
+        <div class="gallery-item" data-category="highlight">
             <div class="media-box">
                 <div class="video-overlay"><i class="fas fa-play"></i></div>
                 <video muted loop playsinline preload="metadata">
@@ -339,13 +386,25 @@
             </div>
         </div>
 
-        <div class="gallery-item" data-category="photo">
+        <!-- الإضافة الجديدة: كرت تجريبي لتصوير أعياد الميلاد -->
+        <div class="gallery-item" data-category="birthday">
             <div class="media-box">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500" alt="بورتريه">
+                <img src="download.jpg"" alt="عيد ميلاد">
             </div>
             <div class="item-info">
-                <h3>تصوير بورتريه شخصي</h3>
-                <p><i class="fas fa-camera"></i> استوديو داخلي / فلاش أحادي</p>
+                <h3>جلسة تصوير عيد ميلاد</h3>
+                <p><i class="fas fa-birthday-cake"></i> ألوان مبهجة / إضاءة استوديو</p>
+            </div>
+        </div>
+
+        <!-- الإضافة الجديدة: كرت تجريبي لتصوير الزفة -->
+        <div class="gallery-item" data-category="zaffa">
+            <div class="media-box">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500" alt="زفة بورتريه">
+            </div>
+            <div class="item-info">
+                <h3>تصوير زفة عرسان</h3>
+                <p><i class="fas fa-camera"></i> تفاصيل الحناء / فلاش أحادي</p>
             </div>
         </div>
 
@@ -370,10 +429,9 @@
         </button>
         
         <div class="fab-menu" id="fabMenu">
-            <a href="#" class="fab-item" data-tooltip="تواصل معنا">
+            <a href="contact.html" class="fab-item" data-tooltip="تواصل معنا">
                 <i class="fas fa-envelope"></i>
             </a>
-            <!-- التعديل هنا: تم تغيير علامة # إلى services.html لربط الشاشة الثالثة -->
             <a href="services.html" class="fab-item" data-tooltip="الخدمات والأسعار">
                 <i class="fas fa-tags"></i>
             </a>
@@ -406,31 +464,63 @@
         });
 
         // تشغيل وإيقاف الفيديو بشكل تفاعلي عند الحوم فوق كرت الفيديو
-        const videoCards = document.querySelectorAll('.gallery-item[data-category="video"]');
+        const videoCards = document.querySelectorAll('.gallery-item');
         videoCards.forEach(card => {
             const video = card.querySelector('video');
-            const overlay = card.querySelector('.video-overlay');
-            
-            card.addEventListener('mouseenter', () => {
-                video.play();
-                overlay.style.opacity = '0'; // إخفاء زر التشغيل بنعومة أثناء العرض
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                video.pause();
-                video.currentTime = 0; // إعادة الفيديو للبداية
-                overlay.style.opacity = '1';
-            });
+            if (video) {
+                const overlay = card.querySelector('.video-overlay');
+                
+                card.addEventListener('mouseenter', () => {
+                    video.play();
+                    if(overlay) overlay.style.opacity = '0'; 
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    video.pause();
+                    video.currentTime = 0; 
+                    if(overlay) overlay.style.opacity = '1';
+                });
+            }
         });
 
-        // نظام الفلترة الذكي لعرض الصور أو الفيديوهات
-        function filterMedia(category) {
-            // تحديث تصميم أزرار الفلترة
+        // --- الإضافة الجديدة: دالة إظهار القائمة الفرعية ---
+        function toggleSubMenu(btn, menuId) {
+            // تحديث اللون للزر الرئيسي
             const buttons = document.querySelectorAll('.filter-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
 
-            // إخفاء وإظهار الكروت بأنيميشن مريح للعين
+            // إخفاء جميع الصور (حسب طلبك: قبل ما تظهر الصور)
+            const items = document.querySelectorAll('.gallery-item');
+            items.forEach(item => {
+                item.style.display = 'none';
+            });
+
+            // إظهار القائمة الفرعية
+            document.getElementById(menuId).classList.add('active');
+            
+            // إزالة التفعيل من الأزرار الفرعية عشان الزبون يختار من جديد
+            const subButtons = document.querySelectorAll('.sub-filter-btn');
+            subButtons.forEach(b => b.classList.remove('active'));
+        }
+
+        // نظام الفلترة الذكي المحدث
+        function filterMedia(category, isSubMenu = false) {
+            // إذا ضغطنا على زر رئيسي غير "جلسات تصوير"، نقفل القائمة الفرعية
+            if (!isSubMenu) {
+                document.getElementById('photo-sub-menu').classList.remove('active');
+                
+                const buttons = document.querySelectorAll('.filter-btn');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            } else {
+                // إذا ضغطنا على زر فرعي، نحدث لون الزر الفرعي بس
+                const subButtons = document.querySelectorAll('.sub-filter-btn');
+                subButtons.forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+
+            // إخفاء وإظهار الكروت
             const items = document.querySelectorAll('.gallery-item');
             items.forEach(item => {
                 if (category === 'all' || item.getAttribute('data-category') === category) {
