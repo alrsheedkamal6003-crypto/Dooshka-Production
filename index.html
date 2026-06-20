@@ -708,33 +708,98 @@
         @media (max-width: 900px) {
             .contact-grid { grid-template-columns: 1fr; gap: 30px; }
         }
+
+        /* 📱 التعديلات الجذرية للهاتف بناءً على القاعدة الذهبية للنسق السابق */
         @media (max-width: 768px) {
-            header { padding: 15px 20px; }
+            /* الهيدر والأزرار العلوية */
+            header { padding: 10px 4%; }
             .header-left { gap: 10px; }
+            .logo { font-size: 18px; }
+            .lang-toggle { font-size: 12px; padding: 4px 10px; }
+            .theme-toggle, .cart-icon { font-size: 20px; }
+            .header-controls { gap: 12px; }
+
+            /* القائمة الجانبية المنسدلة */
             .nav-links {
                 position: absolute;
-                top: 70px;
+                top: 60px;
                 right: -100%;
                 flex-direction: column;
                 background-color: var(--primary-color);
                 width: 100%;
                 text-align: center;
                 transition: right 0.4s ease;
-                padding: 20px 0;
+                padding: 15px 0;
                 box-shadow: 0 10px 10px rgba(0,0,0,0.1);
             }
             html[dir="ltr"] .nav-links { right: auto; left: -100%; transition: left 0.4s ease; }
             .nav-links.active { right: 0; }
             html[dir="ltr"] .nav-links.active { left: 0; }
-            .nav-links li { margin: 15px 0; }
-            .menu-toggle { display: block; color: white; }
-            .hero h1 { font-size: 32px; }
-            .hero p { font-size: 16px; }
-            .grid-container { grid-template-columns: 1fr; }
-            .cart-drawer { width: 100%; left: -100%; }
-            html[dir="ltr"] .cart-drawer { right: -100%; left: auto; }
+            .nav-links li { margin: 10px 0; }
+            .nav-links li a { font-size: 14px; }
+            .menu-toggle { font-size: 20px; display: block; color: white; }
+
+            /* قسم الترحيب (Hero) */
+            .hero { padding: 80px 4% 30px; margin-top: 50px; min-height: auto; }
+            .hero h1 { font-size: 24px; margin-bottom: 15px; }
+            .hero p { font-size: 14px; margin-bottom: 20px; }
+            .btn-main { padding: 10px 20px; font-size: 14px; }
+
+            /* الأقسام والخدمات - التعديل الجذري: كرتين في السطر وتصغير الحجم */
+            .categories { padding: 40px 4% 20px; }
+            .section-title { font-size: 24px; margin-bottom: 30px; }
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .card { padding: 15px 10px; border-radius: 10px; }
+            .card i { font-size: 24px; margin-bottom: 10px; }
+            .card h3 { font-size: 13px; margin-bottom: 8px; }
+            .card p { font-size: 11px; line-height: 1.4; }
+
+            /* قسم من نحن */
+            .about-section { padding: 40px 4%; }
+            .about-container { font-size: 14px; }
+            .about-features { grid-template-columns: 1fr; gap: 15px; margin-top: 25px; }
+            .about-feat-box { padding: 15px; }
+            .about-feat-box i { font-size: 24px; }
+            .about-feat-box h4 { font-size: 15px; }
+            .about-feat-box p { font-size: 12px; }
+
+            /* قسم التواصل معنا */
+            .contact-section { padding: 40px 4%; }
+            .contact-box { padding: 20px; }
+            .contact-box h3 { font-size: 18px; }
+            .contact-form input, .contact-form textarea { padding: 10px; font-size: 13px; }
+            .btn-submit { padding: 10px; font-size: 14px; }
+            .work-table td { padding: 8px 5px; font-size: 13px; }
+            .map-container { height: 180px; }
+            .social-glow-title { font-size: 15px; }
+            .glow-btn { width: 40px; height: 40px; font-size: 16px; }
+
+            /* نافذة السلة تظهر في 65% فقط من الشاشة مثل الشاشة السابقة */
+            .cart-drawer { width: 65%; left: -65%; }
+            html[dir="ltr"] .cart-drawer { right: -65%; left: auto; }
             .cart-drawer.open { left: 0; }
             html[dir="ltr"] .cart-drawer.open { right: 0; left: auto; }
+
+            /* تصغير محتويات السلة */
+            .cart-drawer-header { padding: 15px; }
+            .cart-drawer-header h2 { font-size: 16px; }
+            .cart-item { gap: 10px; }
+            .cart-item img { width: 50px; height: 50px; }
+            .cart-item-title { font-size: 13px; }
+            .cart-item-price { font-size: 13px; }
+            .cart-total-price { font-size: 16px; }
+            .checkout-btn { font-size: 13px; padding: 10px; }
+        }
+
+        /* للهواتف الصغيرة جداً لضمان عدم تداخل النصوص */
+        @media (max-width: 380px) {
+            .hero h1 { font-size: 20px; }
+            .card h3 { font-size: 11px; }
+            .card p { font-size: 10px; }
+            .glow-btn { width: 35px; height: 35px; font-size: 14px; }
         }
     </style>
 </head>
