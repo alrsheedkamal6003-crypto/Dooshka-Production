@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Art | لوحة التحكم وإدخال البيانات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* الإعدادات العامة المتوافقة مع شاشة العرض */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --bg-color: #f4f6f8;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --white: #ffffff;
+            --border-color: #eee;
+            --success-color: #25d366;
+            --input-bg: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* 🌗 الوضع الداكن الفاخر الموحد */
+        body.dark-theme {
+            --bg-color: #131c24;
+            --text-color: #f5f6fa;
+            --card-bg: #1e2b35;
+            --primary-color: #1a252f;
+            --white: #1e2b35;
+            --border-color: #2c3e50;
+            --input-bg: #243340;
+        }
+
+        /* 🎬 الشاشة الترحيبية المتحركة (Splash Screen) */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #2c3e50, #1a252f);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            opacity: 1;
+            visibility: visible;
+        }
+        .splash-screen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .splash-content {
+            text-align: center;
+            color: white;
+        }
+        .splash-logo {
+            font-size: 80px;
+            color: var(--secondary-color);
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+        .splash-title {
+            font-size: 36px;
+            font-weight: 900;
+            margin-top: 20px;
+        }
+        .splash-loader {
+            width: 100px;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            margin: 25px auto 0;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        .splash-loader::after {
+            content: '';
+            position: absolute;
+            left: -50%;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            background: var(--secondary-color);
+            animation: loadingBar 1.5s infinite ease-in-out;
+        }
+
+        /* شريط التنقل العلوي */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.3s;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .lang-toggle {
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .lang-toggle:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+
+        .theme-toggle {
+            font-size: 22px;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.2s, color 0.2s;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            color: var(--secondary-color);
+        }
+
+        .logout-btn {
+            background: transparent;
+            color: #ff4757;
+            border: 1px solid #ff4757;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: none;
+        }
+        .logout-btn:hover {
+            background: #ff4757;
+            color: white;
+        }
+
+        /* 🔐 شاشة تسجيل الدخول الاحترافية */
+        .login-container {
+            max-width: 450px;
+            margin: 60px auto;
+            padding: 40px 30px;
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .login-container h2 {
+            margin-bottom: 25px;
+            font-weight: 900;
+            color: var(--primary-color);
+        }
+        body.dark-theme .login-container h2 { color: #fff; }
+        .login-container .input-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        html[dir="ltr"] .login-container .input-group { text-align: left; }
+        .login-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .login-container select, .login-container input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            outline: none;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .login-container select:focus, .login-container input:focus {
+            border-color: var(--secondary-color);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .login-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* 📊 لوحة إدارة البيانات */
+        .admin-dashboard {
+            display: none;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 4%;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* استمارة الإدخال والتعديل */
+        .form-card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+        }
+        .form-card h3 {
+            margin-bottom: 20px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+            text-align: right;
+        }
+        html[dir="ltr"] .form-group { text-align: left; }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--secondary-color);
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        .submit-btn {
+            flex: 1;
+            padding: 12px;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .submit-btn:hover { background-color: #1ebd58; }
+        
+        .cancel-btn {
+            display: none;
+            padding: 12px 20px;
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        /* قسم استعراض وإدارة المنتجات */
+        .products-management {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        .products-management h3 {
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* تصفية استعراض لوحة الإدارة */
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .admin-products-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 700px;
+            overflow-y: auto;
+            padding-left: 5px;
+        }
+
+        .admin-product-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background-color: var(--bg-color);
+            transition: all 0.3s;
+        }
+        body.dark-theme .admin-product-item { background-color: rgba(255,255,255,0.02); }
+
+        .admin-product-item img {
+            width: 65px;
+            height: 65px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .admin-product-details {
+            flex: 1;
+        }
+        .admin-product-name {
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .admin-product-cat {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+        .admin-product-price {
+            font-weight: 900;
+            color: var(--secondary-color);
+            margin-top: 4px;
+            font-size: 15px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.2s;
+        }
+        .action-btn:hover { transform: scale(1.1); }
+        .edit-btn { background-color: #3498db; }
+        .delete-btn { background-color: #e74c3c; }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(231, 76, 60, 0.4)); }
+            100% { transform: scale(1.08); filter: drop-shadow(0 0 20px rgba(231, 76, 60, 0.8)); }
+        }
+        @keyframes loadingBar {
+            0% { left: -50%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-content">
+            <i class="fa-solid fa-cloud splash-logo"></i>
+            <h1 class="splash-title" id="splashTitle">مكتبة البيان</h1>
+            <div class="splash-loader"></div>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo"><i class="fa-solid fa-cloud"></i> <span id="headerTitle">Cloud Art | لوحة التحكم وإدخال البيانات</span></div>
+        <div class="header-controls">
+            <div class="lang-toggle" id="langToggleBtn">
+                <i class="fa-solid fa-language"></i>
+                <span id="langText">English</span>
+            </div>
+            <div class="theme-toggle" id="themeToggleBtn">
+                <i class="fa-solid fa-moon"></i>
+            </div>
+            <button class="logout-btn" id="logoutBtn" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+        </div>
+    </header>
+
+    <div class="login-container" id="loginBox">
+        <h2 id="loginHeading">تسجيل دخول النظام</h2>
+        <div class="input-group">
+            <label id="lblUser">المستخدم وصلاحية النظام:</label>
+            <select id="adminUser">
+                <option value="Al-Rasheed Kamal">Al-Rasheed Kamal (Owner)</option>
+                <option value="Othman Al-Tijani">Othman Al-Tijani (Cashier)</option>
+                <option value="Mazan Naji">Mazan Naji (Cashier)</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label id="lblPass">كلمة المرور:</label>
+            <input type="password" id="adminPass" placeholder="أدخل كلمة المرور (bayan2026)...">
+        </div>
+        <button class="login-btn" id="btnLogin" onclick="loginAdmin()">تسجيل الدخول</button>
+    </div>
+
+    <main class="admin-dashboard" id="adminDashboard">
+        <div class="dashboard-grid">
+            
+            <section class="form-card">
+                <h3 id="formHeading">إضافة منتج جديد</h3>
+                <form id="productForm" onsubmit="handleFormSubmit(event)">
+                    <div class="form-group">
+                        <label id="lblFormCat">قسم المنتج:</label>
+                        <select id="prodCategory" required>
+                            <option value="قسم الكتب والمذكرات">قسم الكتب والمذكرات</option>
+                            <option value="قسم تزيين العربات">قسم تزيين العربات</option>
+                            <option value="قسم تطوير المواقع والتطبيقات">قسم تطوير المواقع والتطبيقات</option>
+                            <option value="قسم الالعاب">قسم الالعاب</option>
+                            <option value="قسم الهدايا">قسم الهدايا</option>
+                            <option value="قسم الهدايا والانتيكات">قسم الهدايا والانتيكات</option>
+                            <option value="قسم التصاميم الجرافيك">قسم التصاميم الجرافيك</option>
+                            <option value="قسم الأدوات المكتبية">قسم الأدوات المكتبية</option>
+                            <option value="قسم الطباعة والتصوير والتغليف">قسم الطباعة والتصوير والتغليف</option>
+                            <option value="قسم الأدوات المدرسية">قسم الأدوات المدرسية</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label id="lblFormNameAr">اسم المنتج (بالعربية):</label>
+                        <input type="text" id="prodNameAr" required placeholder="مثال: منظم مكتب فاخر">
+                    </div>
+                    <div class="form-group">
+                        <label id="lblFormNameEn">اسم المنتج (بالإنجليزية):</label>
+                        <input type="text" id="prodNameEn" required placeholder="Example: Deluxe Desk Organizer">
+                    </div>
+                    <div class="form-group">
+                        <label id="lblFormPrice">سعر المنتج (ج.س):</label>
+                        <input type="number" id="prodPrice" required placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label id="lblFormImg">رابط صورة المنتج (URL):</label>
+                        <input type="url" id="prodImg" required placeholder="https://example.com/image.jpg">
+                    </div>
+                    <div class="btn-container">
+                        <button type="submit" class="submit-btn" id="btnSubmitForm">حفظ المنتج</button>
+                        <button type="button" class="cancel-btn" id="btnCancelEdit" onclick="resetForm()">إلغاء</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="products-management">
+                <h3>
+                    <span id="listHeading">المنتجات الحالية</span>
+                    <select id="filterCategory" class="filter-select" onchange="loadAdminProducts()">
+                        <option value="كل الأقسام">كل الأقسام</option>
+                        <option value="قسم الكتب والمذكرات">قسم الكتب والمذكرات</option>
+                        <option value="قسم تزيين العربات">قسم تزيين العربات</option>
+                        <option value="قسم تطوير المواقع والتطبيقات">قسم تطوير المواقع والتطبيقات</option>
+                        <option value="قسم الالعاب">قسم الالعاب</option>
+                        <option value="قسم الهدايا">قسم الهدايا</option>
+                        <option value="قسم الهدايا والانتيكات">قسم الهدايا والانتيكات</option>
+                        <option value="قسم التصاميم الجرافيك">قسم التصاميم الجرافيك</option>
+                        <option value="قسم الأدوات المكتبية">قسم الأدوات المكتبية</option>
+                        <option value="قسم الطباعة والتصوير والتغليف">قسم الطباعة والتصوير والتغليف</option>
+                        <option value="قسم الأدوات المدرسية">قسم الأدوات المدرسية</option>
+                    </select>
+                </h3>
+                <div class="admin-products-list" id="adminProductsList">
+                    </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDn3EPBVKjQEX_ZRPiKxW1ZmVN80PKXUSI",
+            authDomain: "albayan-library.firebaseapp.com",
+            projectId: "albayan-library",
+            storageBucket: "albayan-library.firebasestorage.app",
+            messagingSenderId: "318412584830",
+            appId: "1:318412584830:web:45d6fca35a00040fd5252f",
+            measurementId: "G-4P3SHQ9ZZ3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const productsCollection = collection(db, 'Products');
+
+        let currentLang = localStorage.getItem('albayan_lang') || 'ar';
+        let editMode = false;
+        let currentEditKey = null;
+        let globalProductsArray = [];
+
+        const localizationDict = {
+            "ar": {
+                "splashTitle": "مكتبة البيان",
+                "headerTitle": "Cloud Art | لوحة التحكم وإدخال البيانات",
+                "langText": "English",
+                "loginHeading": "تسجيل دخول النظام",
+                "lblUser": "المستخدم وصلاحية النظام:",
+                "lblPass": "كلمة المرور:",
+                "btnLogin": "تسجيل الدخول",
+                "formHeading": "إضافة منتج جديد",
+                "formHeadingEdit": "تعديل المنتج الحالي",
+                "lblFormCat": "قسم المنتج:",
+                "lblFormNameAr": "اسم المنتج (بالعربية):",
+                "lblFormNameEn": "اسم المنتج (بالإنجليزية):",
+                "lblFormPrice": "سعر المنتج (ج.س):",
+                "lblFormImg": "رابط صورة المنتج (URL):",
+                "btnSubmitForm": "حفظ المنتج",
+                "btnUpdateForm": "تحديث البيانات",
+                "btnCancel": "إلغاء",
+                "listHeading": "المنتجات الحالية",
+                "currency": "ج.س",
+                "logout": "خروج",
+                "allCats": "كل الأقسام"
+            },
+            "en": {
+                "splashTitle": "Al-Bayan Library",
+                "headerTitle": "Cloud Art | Control Panel",
+                "langText": "العربية",
+                "loginHeading": "System Login",
+                "lblUser": "User & Role:",
+                "lblPass": "Password:",
+                "btnLogin": "Login",
+                "formHeading": "Add New Product",
+                "formHeadingEdit": "Edit Current Product",
+                "lblFormCat": "Product Section:",
+                "lblFormNameAr": "Product Name (Arabic):",
+                "lblFormNameEn": "Product Name (English):",
+                "lblFormPrice": "Product Price (SDG):",
+                "lblFormImg": "Product Image Link (URL):",
+                "btnSubmitForm": "Save Product",
+                "btnUpdateForm": "Update Data",
+                "btnCancel": "Cancel",
+                "listHeading": "Current Products",
+                "currency": "SDG",
+                "logout": "Logout",
+                "allCats": "All Categories"
+            }
+        };
+
+        setTimeout(() => {
+            document.getElementById('splashScreen').classList.add('fade-out');
+        }, 1500);
+
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = themeToggleBtn.querySelector('i');
+        if (localStorage.getItem('albayan_theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+        }
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            if (document.body.classList.contains('dark-theme')) {
+                localStorage.setItem('albayan_theme', 'dark');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                localStorage.setItem('albayan_theme', 'light');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+            }
+        });
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('albayan_lang', lang);
+            document.documentElement.dir = lang === 'en' ? 'ltr' : 'rtl';
+            document.documentElement.lang = lang;
+
+            const dict = localizationDict[lang];
+            document.getElementById('splashTitle').innerText = dict.splashTitle;
+            document.getElementById('headerTitle').innerText = dict.headerTitle;
+            document.getElementById('langText').innerText = dict.langText;
+            document.getElementById('loginHeading').innerText = dict.loginHeading;
+            document.getElementById('lblUser').innerText = dict.lblUser;
+            document.getElementById('lblPass').innerText = dict.lblPass;
+            document.getElementById('btnLogin').innerText = dict.btnLogin;
+            document.getElementById('formHeading').innerText = editMode ? dict.formHeadingEdit : dict.formHeading;
+            document.getElementById('lblFormCat').innerText = dict.lblFormCat;
+            document.getElementById('lblFormNameAr').innerText = dict.lblFormNameAr;
+            document.getElementById('lblFormNameEn').innerText = dict.lblFormNameEn;
+            document.getElementById('lblFormPrice').innerText = dict.lblFormPrice;
+            document.getElementById('lblFormImg').innerText = dict.lblFormImg;
+            document.getElementById('btnSubmitForm').innerText = editMode ? dict.btnUpdateForm : dict.btnSubmitForm;
+            document.getElementById('btnCancelEdit').innerText = dict.btnCancel;
+            document.getElementById('listHeading').innerText = dict.listHeading;
+            document.getElementById('logoutBtn').innerHTML = `<i class="fa-solid fa-right-from-bracket"></i> ${dict.logout}`;
+            
+            document.getElementById('filterCategory').options[0].text = dict.allCats;
+
+            loadAdminProducts();
+        }
+
+        document.getElementById('langToggleBtn').addEventListener('click', () => {
+            applyLanguage(currentLang === 'ar' ? 'en' : 'ar');
+        });
+
+        window.loginAdmin = function() {
+            const pass = document.getElementById('adminPass').value;
+            // الباسورد الموحد لجميع الصلاحيات هو bayan2026
+            if (pass === "bayan2026") {
+                sessionStorage.setItem('admin_session', 'authenticated');
+                checkSession();
+            } else {
+                alert(currentLang === 'ar' ? "كلمة المرور خاطئة، يرجى المحاولة مرة أخرى!" : "Incorrect password, please try again!");
+            }
+        };
+
+        window.logoutAdmin = function() {
+            sessionStorage.removeItem('admin_session');
+            checkSession();
+        };
+
+        function checkSession() {
+            const isAuth = sessionStorage.getItem('admin_session') === 'authenticated';
+            if (isAuth) {
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                document.getElementById('logoutBtn').style.display = 'block';
+            } else {
+                document.getElementById('loginBox').style.display = 'block';
+                document.getElementById('adminDashboard').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'none';
+            }
+        }
+
+        onSnapshot(productsCollection, (snapshot) => {
+            globalProductsArray = [];
+            snapshot.forEach((doc) => {
+                globalProductsArray.push({ key: doc.id, ...doc.data() });
+            });
+            loadAdminProducts();
+        });
+
+        window.loadAdminProducts = function() {
+            const listContainer = document.getElementById('adminProductsList');
+            listContainer.innerHTML = '';
+            const selectedFilter = document.getElementById('filterCategory') ? document.getElementById('filterCategory').value : "كل الأقسام";
+            const dict = localizationDict[currentLang];
+
+            let filteredProducts = globalProductsArray;
+            if (selectedFilter !== "كل الأقسام" && selectedFilter !== "All Categories") {
+                filteredProducts = globalProductsArray.filter(p => p.category === selectedFilter);
+            }
+
+            if (filteredProducts.length === 0) {
+                listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#7f8c8d;">${currentLang === 'ar' ? 'لا يوجد منتجات في هذا القسم.' : 'No products found in this section.'}</div>`;
+                return;
+            }
+
+            filteredProducts.forEach(product => {
+                const displayName = currentLang === 'ar' ? product.nameAr : product.nameEn;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'admin-product-item';
+                itemDiv.innerHTML = `
+                    <img src="${product.img}" alt="${displayName}" onerror="this.src='https://images.unsplash.com/photo-1594322436404-5a0526db4d13?w=100'">
+                    <div class="admin-product-details">
+                        <div class="admin-product-name">${displayName}</div>
+                        <div class="admin-product-cat"><i class="fa-solid fa-folder-open"></i> ${product.category}</div>
+                        <div class="admin-product-price">${Number(product.price).toLocaleString()} ${dict.currency}</div>
+                    </div>
+                    <div class="admin-actions">
+                        <button class="action-btn edit-btn" title="تعديل" onclick="startEditProduct('${product.key}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn delete-btn" title="حذف" onclick="deleteProduct('${product.key}')"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+                listContainer.appendChild(itemDiv);
+            });
+        }
+
+        window.handleFormSubmit = async function(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('prodCategory').value;
+            const nameAr = document.getElementById('prodNameAr').value.trim();
+            const nameEn = document.getElementById('prodNameEn').value.trim();
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            const img = document.getElementById('prodImg').value.trim();
+
+            const productData = {
+                name: nameAr,
+                nameAr: nameAr,
+                nameEn: nameEn,
+                price: price,
+                img: img,
+                category: category
+            };
+
+            if (editMode && currentEditKey) {
+                try {
+                    const docRef = doc(db, 'Products', currentEditKey);
+                    await updateDoc(docRef, productData);
+                    alert(currentLang === 'ar' ? "تم تحديث بيانات المنتج بنجاح!" : "Product updated successfully!");
+                    resetForm();
+                } catch(err) {
+                    alert("Error: " + err.message);
+                }
+            } else {
+                try {
+                    await addDoc(productsCollection, productData);
+                    alert(currentLang === 'ar' ? "تمت إضافة المنتج بنجاح إلى شاشة العرض!" : "Product added successfully to showcase page!");
+                    document.getElementById('productForm').reset();
+                } catch(err) {
+                    alert("Error: " + err.message);
+                }
+            }
+        };
+
+        window.startEditProduct = function(key) {
+            const product = globalProductsArray.find(p => p.key === key);
+            if (!product) return;
+
+            editMode = true;
+            currentEditKey = key;
+
+            document.getElementById('prodCategory').value = product.category;
+            document.getElementById('prodNameAr').value = product.nameAr || product.name || "";
+            document.getElementById('prodNameEn').value = product.nameEn || "";
+            document.getElementById('prodPrice').value = product.price;
+            document.getElementById('prodImg').value = product.img;
+
+            document.getElementById('btnCancelEdit').style.display = 'block';
+            
+            const dict = localizationDict[currentLang];
+            document.getElementById('formHeading').innerText = dict.formHeadingEdit;
+            document.getElementById('btnSubmitForm').innerText = dict.btnUpdateForm;
+            document.getElementById('btnSubmitForm').style.backgroundColor = '#3498db';
+
+            window.scrollTo({ top: document.querySelector('.form-card').offsetTop - 100, behavior: 'smooth' });
+        };
+
+        window.deleteProduct = async function(key) {
+            const confirmMsg = currentLang === 'ar' ? "هل أنت متأكد تماماً من حذف هذا المنتج؟" : "Are you sure you want to delete this product?";
+            if (confirm(confirmMsg)) {
+                try {
+                    const docRef = doc(db, 'Products', key);
+                    await deleteDoc(docRef);
+                    alert(currentLang === 'ar' ? "تم حذف المنتج بنجاح من قاعدة البيانات!" : "Product deleted successfully from database!");
+                    if (editMode && currentEditKey === key) resetForm();
+                } catch(err) {
+                    alert("Error: " + err.message);
+                }
+            }
+        };
+
+        window.resetForm = function() {
+            editMode = false;
+            currentEditKey = null;
+            document.getElementById('productForm').reset();
+            document.getElementById('btnCancelEdit').style.display = 'none';
+            
+            const dict = localizationDict[currentLang];
+            document.getElementById('formHeading').innerText = dict.formHeading;
+            document.getElementById('btnSubmitForm').innerText = dict.btnSubmitForm;
+            document.getElementById('btnSubmitForm').style.backgroundColor = 'var(--success-color)';
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkSession();
+            applyLanguage(currentLang);
+        });
+    </script>
+</body>
+</html>

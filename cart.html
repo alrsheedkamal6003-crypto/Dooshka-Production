@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مكتبة البيان | مراجعة الطلب والشحن</title>
+    <link href="https://fonts.googleapis.com/css2 family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --bg-color: #f4f6f8;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --green-color: #25d366;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            padding-bottom: 60px;
+        }
+
+        /* شريط التنقل */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            text-decoration: none;
+            color: white;
+            transition: color 0.3s;
+        }
+
+        .logo:hover {
+            color: var(--secondary-color);
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s;
+        }
+
+        .back-btn:hover {
+            color: var(--secondary-color);
+        }
+
+        /* حاوية المحتوى الرئيسي */
+        .main-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+        }
+
+        .section-box {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+
+        .section-box h2 {
+            font-size: 22px;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* إعدادات الاستمارة (Form) */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            outline: none;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* راديو خيارات التوصيل */
+        .delivery-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .delivery-box {
+            border: 2px solid #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .delivery-box input {
+            display: none;
+        }
+
+        .delivery-box.selected {
+            border-color: var(--secondary-color);
+            background-color: rgba(231, 76, 60, 0.05);
+            color: var(--secondary-color);
+        }
+
+        /* جدول الفاتورة ومراجعة المنتجات */
+        .invoice-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 350px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 5px;
+        }
+
+        .invoice-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .invoice-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .invoice-item-info {
+            flex: 1;
+        }
+
+        .invoice-item-name {
+            font-weight: bold;
+            font-size: 15px;
+            color: var(--primary-color);
+        }
+
+        .invoice-item-qty {
+            font-size: 13px;
+            color: #777;
+            margin-top: 3px;
+        }
+
+        .invoice-item-price {
+            font-weight: 900;
+            color: var(--secondary-color);
+        }
+
+        /* ملخص الحساب المالي */
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #666;
+        }
+
+        .summary-row.total {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--primary-color);
+            border-top: 2px dashed #ddd;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-row.total .price {
+            color: var(--secondary-color);
+        }
+
+        /* زر الإرسال النهائي للواتساب */
+        .submit-order-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--green-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
+            transition: transform 0.2s, background-color 0.2s;
+            margin-top: 20px;
+        }
+
+        .submit-order-btn:hover {
+            transform: translateY(-3px);
+            background-color: #1ebd58;
+        }
+
+        .empty-cart-alert {
+            text-align: center;
+            padding: 40px 20px;
+            color: #777;
+        }
+
+        /* تجاوب الشاشات للموبايل */
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                margin: 20px auto;
+            }
+            .delivery-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo"><i class="fa-solid fa-book-open-reader"></i> مكتبة البيان</a>
+        <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> العودة للموقع</a>
+    </header>
+
+    <div class="main-container">
+        
+        <div class="section-box">
+            <h2><i class="fa-solid fa-truck-ramp-box"></i> بيانات الشحن والاستلام</h2>
+            <form id="orderForm" onsubmit="confirmAndSendOrder(event)">
+                
+                <div class="form-group">
+                    <label for="custName">الاسم الكامل *</label>
+                    <input type="text" id="custName" required placeholder="أدخل اسمك الثلاثي لضمان دقة الطلب...">
+                </div>
+
+                <div class="form-group">
+                    <label for="custPhone">رقم الهاتف (الواتساب) *</label>
+                    <input type="tel" id="custPhone" required placeholder="مثال: 0912345678...">
+                </div>
+
+                <div class="form-group">
+                    <label>طريقة الاستلام المفضلة *</label>
+                    <div class="delivery-options">
+                        <div class="delivery-box selected" id="optDelivery" onclick="selectDelivery('توصيل للمنزل')">
+                            <i class="fa-solid fa-house-chimney" style="font-size:20px; margin-bottom:5px;"></i>
+                            <div>توصيل للمنزل</div>
+                        </div>
+                        <div class="delivery-box" id="optPickup" onclick="selectDelivery('استلام من المكتبة')">
+                            <i class="fa-solid fa-shop" style="font-size:20px; margin-bottom:5px;"></i>
+                            <div>استلام من المكتبة</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="addressGroup">
+                    <label for="custAddress">العنوان بالتفصيل *</label>
+                    <textarea id="custAddress" rows="3" required placeholder="المدينة، الحي، اسم الشارع، أو أقرب معلم مشهور..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="custNotes">ملاحظات إضافية للطلب (اختياري)</label>
+                    <textarea id="custNotes" rows="2" placeholder="أي تفاصيل إضافية تريد إخبارنا بها بخصوص طلبك..."></textarea>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="section-box" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h2><i class="fa-solid fa-file-invoice-dollar"></i> مراجعة الفاتورة</h2>
+                
+                <div class="invoice-items" id="invoiceItemsContainer">
+                    </div>
+            </div>
+
+            <div>
+                <div class="summary-row">
+                    <span>إجمالي المنتجات:</span>
+                    <span id="subTotal">0 ج.س</span>
+                </div>
+                <div class="summary-row" id="shippingRow">
+                    <span>رسوم التوصيل:</span>
+                    <span id="shippingFee">تحدد لاحقاً</span>
+                </div>
+                <div class="summary-row total">
+                    <span>الإجمالي الكلي:</span>
+                    <span class="price" id="finalTotal">0 ج.س</span>
+                </div>
+
+                <button type="submit" form="orderForm" class="submit-order-btn">
+                    <i class="fa-brands fa-whatsapp"></i> إرسال الطلب واعتماد الفاتورة
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // تحميل المنتجات من الـ LocalStorage المشترك
+        let cart = JSON.parse(localStorage.getItem('albayan_cart')) || [];
+        let chosenDeliveryMethod = "توصيل للمنزل";
+
+        const invoiceItemsContainer = document.getElementById('invoiceItemsContainer');
+        const subTotalElement = document.getElementById('subTotal');
+        const finalTotalElement = document.getElementById('finalTotal');
+        const addressGroup = document.getElementById('addressGroup');
+        const custAddress = document.getElementById('custAddress');
+
+        function loadInvoiceUI() {
+            if(cart.length === 0) {
+                invoiceItemsContainer.innerHTML = '<div class="empty-cart-alert">السلة فارغة حالياً! يرجى العودة وإضافة منتجات.</div>';
+                subTotalElement.innerText = '0 ج.س';
+                finalTotalElement.innerText = '0 ج.س';
+                return;
+            }
+
+            invoiceItemsContainer.innerHTML = '';
+            let totalMoney = 0;
+
+            cart.forEach(item => {
+                let itemTotal = item.price * item.qty;
+                totalMoney += itemTotal;
+                invoiceItemsContainer.innerHTML += `
+                    <div class="invoice-item">
+                        <img src="${item.img}" alt="${item.name}">
+                        <div class="invoice-item-info">
+                            <div class="invoice-item-name">${item.name}</div>
+                            <div class="invoice-item-qty">الكمية: ${item.qty} | سعر الوحدة: ${item.price.toLocaleString()} ج.س</div>
+                        </div>
+                        <div class="invoice-item-price">${itemTotal.toLocaleString()} ج.س</div>
+                    </div>
+                `;
+            });
+
+            subTotalElement.innerText = totalMoney.toLocaleString() + ' ج.س';
+            finalTotalElement.innerText = totalMoney.toLocaleString() + ' ج.س';
+        }
+
+        // اختيار طريقة الاستلام وتحديث الاستمارة
+        function selectDelivery(method) {
+            chosenDeliveryMethod = method;
+            document.getElementById('optDelivery').classList.remove('selected');
+            document.getElementById('optPickup').classList.remove('selected');
+
+            if(method === 'توصيل للمنزل') {
+                document.getElementById('optDelivery').classList.add('selected');
+                addressGroup.style.display = 'block';
+                custAddress.required = true;
+                document.getElementById('shippingFee').innerText = 'تحدد لاحقاً';
+            } else {
+                document.getElementById('optPickup').classList.add('selected');
+                addressGroup.style.display = 'none';
+                custAddress.required = false;
+                document.getElementById('shippingFee').innerText = 'مجاني';
+            }
+        }
+
+        // تجميع البيانات وإرسال الفاتورة الاحترافية المنسقة للواتساب
+        function confirmAndSendOrder(event) {
+            event.preventDefault();
+
+            if(cart.length === 0) {
+                alert('سلتك فارغة، لا يوجد طلب لإرساله!');
+                return;
+            }
+
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            const address = custAddress.value;
+            const notes = document.getElementById('custNotes').value;
+
+            // بناء نص رسالة الواتساب المنسق والاحترافي جداً
+            let message = `📋 *فاتورة طلب جديدة من مكتبة البيان* 📋\n\n`;
+            message += `👤 *بيانات العميل:*\n`;
+            message += ` 📝 الاسم: ${name}\n`;
+            message += ` 📞 الهاتف: ${phone}\n`;
+            message += ` 🚚 طريقة الاستلام: ${chosenDeliveryMethod}\n`;
+            if(chosenDeliveryMethod === 'توصيل للمنزل') {
+                message += ` 📍 العنوان: ${address}\n`;
+            }
+            if(notes.trim() !== '') {
+                message += ` ✉️ ملاحظات: ${notes}\n`;
+            }
+            
+            message += `\n-------------------------\n`;
+            message += `🛒 *قائمة المنتجات والطلبات:*\n`;
+
+            let totalMoney = 0;
+            cart.forEach((item, index) => {
+                let itemTotal = item.price * item.qty;
+                totalMoney += itemTotal;
+                message += `${index + 1}) *${item.name}*\n    الكمية: ${item.qty} | السعر: ${itemTotal.toLocaleString()} ج.س\n`;
+            });
+
+            message += `-------------------------\n`;
+            message += `💰 *الإجمالي الكلي للمشتريات:* ${totalMoney.toLocaleString()} ج.س\n`;
+            if(chosenDeliveryMethod === 'استلام من المكتبة') {
+                message += `🚚 *رسوم التوصيل:* مجاني (استلام من الموقع)\n`;
+            } else {
+                message += `🚚 *رسوم التوصيل:* تحدد لاحقاً حسب العنوان\n`;
+            }
+            message += `\n✨ شكراً لاختياركم مكتبة البيان، بانتظار تأكيدك الجاهز!`;
+
+            // فتح الواتساب بالرسالة المنسقة
+            let whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+            
+            // اختيار اختياري: مسح السلة بعد إرسال الطلب لراحة الزبون
+            // localStorage.removeItem('albayan_cart');
+        }
+
+        window.onload = loadInvoiceUI;
+    </script>
+</body>
+</html>
